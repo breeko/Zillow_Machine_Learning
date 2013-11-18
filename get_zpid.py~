@@ -12,7 +12,7 @@ for i in xrange(100):
 	websites.append(website)
 
 for website in websites:
-	response = urllib2.urlopen(website)
+	response = urllib2.urlopen("http://www.zillow.com/new-york-ny/")
 	html = response.read()
 	data = [line for line in html.split()]
 
