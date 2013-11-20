@@ -4,8 +4,8 @@ from time import sleep
 from sys import exit
 
 ID = "X1-ZWz1bceng556h7_4srxq"
-zpid_path = "zpid2.txt"
-write_path = "data2.txt"
+zpid_path = "zpid.txt"
+write_path = "data.txt"
 
 attributes = ["price", "street", "zipcode","city","state",
 		"type","useCode","bedrooms",
@@ -67,10 +67,13 @@ def get_line(sxml, attributes = attributes, delim=';'):
 	if response == 0:
 		for attribute in attributes:
 			try:
-				line += tree.findall(attribute)[0].text + ';'
+				line_append = tree.findall(attribute)[0].text
+				line_append.replace(";",".")
+				line += line_append + ';'
 			except:
 				line += ';'
-		line = line.encode('ascii','ignore')		
+		line = line.encode('ascii','ignore')	
+		line = line.replace('\n','.')	
 		return response, line[:-1]
 	else:
 		return response, None
