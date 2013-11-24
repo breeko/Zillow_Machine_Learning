@@ -5,16 +5,34 @@ from sys import exit
 
 ID = "X1-ZWz1bceng556h7_4srxq"
 zpid_path = "zpid.txt"
-write_path = "data.txt"
+zpid_expanded_path = "zpid_expanded.txt"
+write_path = "data2.txt"
 
-attributes = ["price", "street", "zipcode","city","state",
-		"type","useCode","bedrooms",
-		"bathrooms", "numFloors","numRooms",
-		"exteriorMaterial","parkingType","coveredParkingSpaces",
-		"heatingSources","heatingSystem","coolingSystem",
-		"appliances", "floorCovering","floorCovering","rooms",
-		"architecture","floorNumber","numUnits","homeDescription",
-		"whatOwnerLoves","neighborhood"]
+attributes_dict = { 
+	1: "price", 
+	2: "street", 
+	3: "city",
+	4: "zipcode",
+	5: "address",
+	6: "state",
+	7: "useCode",
+	8: "bedrooms",
+	9: "bathrooms", 
+	10: "finishedSqFt",
+	11: "numFloors",
+	12: "numRooms",
+	13: "exteriorMaterial",
+	14: "view",
+	15: "parkingType",
+	16: "coveredParkingSpaces",
+	17: "heatingSources",
+	18: "heatingSystem", 
+	19: "coolingSystem",
+	20: "homeDescription",
+	21: "whatOwnerLoves",
+	22: "neighborhood",
+	23: "zpid"
+}
 
 attributes = ['response/price', 'response/address/street', 'response/address/city','response/address/zipcode','response/address/state','response/editedFacts/useCode', 'response/editedFacts/bedrooms', 'response/editedFacts/bathrooms','response/editedFacts/finishedSqFt', 'response/editedFacts/numFloors','response/editedFacts/numRooms','response/editedFacts/exteriorMaterial','response/editedFacts/view','response/editedFacts/parkingType','response/editedFacts/coveredParkingSpaces','response/editedFacts/heatingSources','response/editedFacts/heatingSystem', 'response/editedFacts/coolingSystem','response/homeDescription','response/whatOwnerLoves','response/neighborhood','request/zpid']
 
@@ -54,9 +72,11 @@ def make_url(zpid, ID = ID):
 
 with open(zpid_path) as f:
 	zpids = f.readlines()
+with open(zpid_expanded_path) as f:
+	zpids_expanded = f.readlines()
 	
 zpids = [zpid.split("_")[-1] for zpid in zpids]
-
+zpids_expanded = [zpid.split("_")[-1] for zpid in zpids_expanded if zpid not in zpids]
 
 write_file = open(write_path, 'w')
 def get_line(sxml, attributes = attributes, delim=';'):
@@ -80,11 +100,15 @@ def get_line(sxml, attributes = attributes, delim=';'):
 
 def main():
 	count = 1
-	total = len(zpids)
-	for zpid in zpids:
+	total = len(zpids_expanded)
+	for zpid in zpids_expanded:
 		result = 0
-		url = make_url(zpid)
-		response = urllib2.urlopen(url)
+		try:
+			url = make_url(zpid)
+			response = urllib2.urlopen(url)
+		except:
+			print "unable to access website for %s \n%s" % (zpid, url)
+			continue
 		sxml = response.read()
 		response, line = get_line(sxml)
 		if response == 0:

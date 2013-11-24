@@ -1,0 +1,65 @@
+import numpy as np
+from get_comps import comps
+
+data_path = 'data.txt'
+
+f = open(data_path)
+raw_data = [line.split(';') for line in f]
+
+attributes = {
+	'price': 0,
+	'street': 1,
+	'city': 2,
+	'zip': 3,
+	'br': 6,
+	'desc': -4,
+	'zpid': -1
+}
+
+good_words = ['granite','state of the art', 'corian', 'maple', 'gourmet']
+bad_words = ['fantastic', 'spacious', '!', 'charming', 'great neighborhood']
+
+dict_good_words = dict((word, 0) for word in good_words)
+dict_bad_words = dict((word, 0) for word in bad_words)
+
+def get_house_data(line, attributes=attributes):
+	''' extracts house data based on attributes and locations in array
+	returns house data dictionary
+	'''
+	house = {}	
+	for attribute, location in attributes.iteritems():
+		val = line[location]
+		if val == '':
+			return None		# incomplete data
+		else:
+			house[attribute] = val		
+	return house
+
+def assign_comp(house, comps = comps):
+	""" assigns a comprable house price based on zip code """
+	zipcode = int(house['zip'])
+	comp = comps[zipcode]
+	house['comp'] = comp
+	house['comp-diff'] = house['price'] - comp
+
+data = []
+for line in raw_data:
+	house = get_house_data(line)
+	if house:
+		data.append(house)
+
+for house in data:
+	ct_good, ct_bad = 0, 0
+	for word in good_words:
+		if word in house['desc'].lower():
+			dict_good_words[word] += 1
+			ct_good += 1
+	for word in bad_words:
+		if word in house['desc'].lower():
+			dict_bad_words[word] += 1
+			ct_bad += 1
+	house['good'] = ct_good
+	house['bad'] = ct_bad
+
+	assign_comp(house)
+
